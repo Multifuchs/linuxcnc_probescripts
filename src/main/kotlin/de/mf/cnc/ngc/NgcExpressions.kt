@@ -20,6 +20,10 @@ sealed class NgcParameter : NgcExpression() {
             .trimEnd('.')
     }
 
+    data class Unsafe(val fullName: String) : NgcParameter() {
+        override fun toString() = fullName
+    }
+
     data class Numbered(val i: Int) : NgcParameter() {
         override fun toString() = "#$i"
     }
@@ -126,7 +130,7 @@ sealed class NgcOperator(val left: NgcExpression, val right: NgcExpression) : Ng
 
 sealed class NgcFunction(private val param: NgcExpression) : NgcExpression() {
     val name = javaClass.kotlin.simpleName!!.uppercase()
-    override fun toString() = "$name[$param]"
+    override fun toString() = "$name${param.toString(true)}"
 
     class Atan(param: NgcExpression) : NgcFunction(param)
     class Abs(param: NgcExpression) : NgcFunction(param)

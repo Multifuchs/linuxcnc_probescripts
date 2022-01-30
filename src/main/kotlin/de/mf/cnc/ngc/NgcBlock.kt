@@ -28,8 +28,9 @@ class NgcProgram(val blocks: List<NgcBlock>) : NgcBlock() {
 class NgcLine(line: String) : NgcSingleLineBlock(line)
 class NgcAssign(parameter: NgcParameter, expression: NgcExpression) : NgcSingleLineBlock("$parameter = $expression")
 
-class NgcComment(txt: String) : NgcSingleLineBlock("($txt)")
-class NgcMsg(txt: String) : NgcSingleLineBlock("(MSG, $txt)")
+private fun String.fixComment() = replace('(', '_').replace(')', '_')
+class NgcComment(txt: String) : NgcSingleLineBlock("(${txt.fixComment()})")
+class NgcMsg(txt: String) : NgcSingleLineBlock("(MSG, ${txt.fixComment()})")
 data class NgcDebugValue(val text: String?, val parameter: NgcParameter?)
 class NgcDebug(values: List<NgcDebugValue>) : NgcSingleLineBlock(buildString {
     append("(debug, ")
@@ -52,7 +53,7 @@ class NgcIf(
         val oToken = ctx.nextOToken()
 
         ifElseBranches.forEachIndexed { index, ngcBranch ->
-            add("$oToken ${if (index == 0) "if" else "elseif"} ${ngcBranch.condition}")
+            add("$oToken ${if (index == 0) "if" else "elseif"} ${ngcBranch.condition.toString(true)}")
             addBlocksIndented(ctx, ngcBranch.blocks)
         }
         if (elseBranch != null) {
@@ -67,7 +68,7 @@ class NgcIf(
 class NgcWhile(private val branch: NgcBranch) : NgcBlock() {
     override fun build(ctx: NgcContext): List<String> = buildList {
         val oToken = ctx.nextOToken()
-        add("$oToken while ${branch.condition}")
+        add("$oToken while ${branch.condition.toString(true)}")
         addBlocksIndented(ctx, branch.blocks)
         add("$oToken endwhile")
     }

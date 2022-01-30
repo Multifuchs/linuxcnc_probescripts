@@ -1,5 +1,6 @@
 package de.mf.cnc.probe
 
+import de.mf.cnc.ngc.NgcParameter
 import java.io.InputStream
 import java.util.*
 import kotlin.properties.Delegates
@@ -21,11 +22,16 @@ object ProbeProps {
     val zMaxG53 by this
     val zClearance by this
     val xyClearance by this
+    val balldiam by this
+
+    val slowFeed by this
+    val slowBackFeed by this
+    val fastFeed by this
 
     operator fun get(key: String): String? = props[key] ?: defaults[key]
 
     fun loadProps(stream: InputStream) {
-        this.defaults = loadPropsStream(stream)
+        this.props = loadPropsStream(stream)
     }
 
     fun loadDefaults(stream: InputStream) {
@@ -61,9 +67,9 @@ object ProbeProps {
             .toMap()
     }
 
-    private operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
+    private operator fun getValue(thisRef: Any?, property: KProperty<*>): NgcParameter {
         val r = get(property.name)
         check(r != null) { "Required property ${property.name} not found in probe.properties or probe-default.properties." }
-        return r
+        return NgcParameter.Unsafe(r)
     }
 }

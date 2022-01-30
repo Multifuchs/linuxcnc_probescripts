@@ -8,26 +8,14 @@ package de.mf.cnc.ngc
 //}
 
 fun ngcProgram(builderAction: NgcBlocksBuilder.() -> Unit): NgcProgram {
-    val blocksBuilder = NgcBlocksBuilder();
+    val blocksBuilder = NgcBlocksBuilder()
     blocksBuilder.builderAction()
     return NgcProgram(blocksBuilder.build())
 }
 
-fun ngcSubProgram(name: String, builderAction: NgcSubBuilder.() -> Unit) = ngcProgram {
-    SUB(name) {
-        this.builderAction()
-    }
-    L("M2")
-}
+open class NgcBlocksBuilder() {
 
-fun buildNgcBlocks(builderAction: NgcBlocksBuilder.() -> Unit): List<NgcBlock> {
-    val b = NgcBlocksBuilder()
-    b.builderAction()
-    return b.build()
-}
-
-open class NgcBlocksBuilder {
-    private val parts = mutableListOf<BuilderBlock>()
+    protected val parts = mutableListOf<BuilderBlock>()
 
     fun LOCALPARAM(name: String, value: Double) = declareParam(NgcParameter.Local(name), value)
     fun LOCALPARAM(name: String, expression: NgcExpression) = declareParam(NgcParameter.Local(name), expression)
@@ -48,8 +36,16 @@ open class NgcBlocksBuilder {
         return parameter
     }
 
+    fun NGC_BLOCK(ngcBlock: NgcBlock) {
+        parts += NormalBlock(ngcBlock)
+    }
+
     fun L(line: String) {
         parts += NormalBlock(NgcLine(line))
+    }
+
+    fun NL() {
+        parts += NormalBlock(NgcLine(""))
     }
 
     fun ASSIGN(parameter: NgcParameter, expression: NgcExpression) {
@@ -86,7 +82,7 @@ open class NgcBlocksBuilder {
     }
 
     fun COMMENT(txt: String) {
-        parts += NormalBlock(NgcMsg(txt))
+        parts += NormalBlock(NgcComment(txt))
     }
 
     fun MSG(txt: String) {
@@ -99,9 +95,15 @@ open class NgcBlocksBuilder {
         parts += NormalBlock(builder.build())
     }
 
-    fun SUB(name: String, builderAction: NgcSubBuilder.() -> Unit) {
+    fun ABORT(txt: String) {
+        parts += NormalBlock(NgcComment("ABORT, $txt"))
+        parts += NormalBlock(NgcLine("M2"))
+    }
+
+    fun SUB(name: String, builderAction: NgcSubBuilder.() -> Unit): String {
         val subBuilder = NgcSubBuilder(name)
         subBuilder.builderAction()
+
         parts += NormalBlock(
             NgcSubroutine(
                 name,
@@ -109,6 +111,17 @@ open class NgcBlocksBuilder {
                 subBuilder.returnValue
             )
         )
+
+        return name
+    }
+
+    fun CALL_SUB(name: String, vararg params: NgcExpression) {
+        L(buildString {
+            append("o<$name> call")
+            params.forEach { param ->
+                append(" ", param.toString(true))
+            }
+        })
     }
 
     fun build(): List<NgcBlock> = parts.map { part ->
@@ -121,15 +134,15 @@ open class NgcBlocksBuilder {
         }
     }
 
-    private sealed class BuilderBlock
-    private class NormalBlock(val ngcBlock: NgcBlock) : BuilderBlock()
-    private class IfBlock() : BuilderBlock() {
+    protected sealed class BuilderBlock
+    protected class NormalBlock(val ngcBlock: NgcBlock) : BuilderBlock()
+    protected class IfBlock() : BuilderBlock() {
         val branches = mutableListOf<NgcBranch>()
         var elseBranch: List<NgcBlock>? = null
     }
 }
 
-class NgcSubBuilder(private val name: String) : NgcBlocksBuilder() {
+open class NgcSubBuilder(private val name: String) : NgcBlocksBuilder() {
     var returnValue: NgcExpression? = null
 
     fun RETURN(value: NgcExpression? = null) {

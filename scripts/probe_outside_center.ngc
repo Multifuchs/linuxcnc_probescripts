@@ -1,0 +1,55 @@
+%
+
+o<probe_outside_center> sub
+    (Parameter with value, which indicates no value)
+    #<NULL> = -999999999
+    (Remember position, where the routine started.)
+    #<startX> = #<_x>
+    #<startY> = #<_y>
+    #<startZ> = #<_z>
+    
+    (Read configuration parameters.)
+    #<clearanceZ> = #<_ini[propetool_clearance]z>
+    #<slowFeed> = #<_ini[probetool_feed]slow>
+    #<fastFeed> = #<_ini[probetool_feed]fast>
+    #<offXleft> = #<_ini[propetool_offsets]xLeft>
+    #<offXright> = #<_ini[propetool_offsets]xRight>
+    #<offYfront> = #<_ini[propetool_offsets]yFront>
+    #<offYback> = #<_ini[propetool_offsets]yBack>
+    #<offZbottom> = 0.0
+    
+    (Z for fast moves is start point plus clearance.)
+    (If start Z is above Z-limit, use Z-limit instead.)
+    #<fastZ> = #<NULL>
+    G28.1 (stores the current absolute position into parameters 5161-5166, 5163 is machine Z)
+    O10 if [[#5163 + #<clearanceZ>] GT 0.0]
+        (MSG, Use zMaxG53 as max Z Height)
+        #<fastZ> = [#<startZ> + [0.0 - #5163]]
+    O10 else
+        #<fastZ> = [#<startZ> + #<clearanceZ>]
+    O10 endif
+    (Safety check.)
+    O20 if [[#<fastZ> LT #<startZ>] OR [#<fastZ> EQ #<NULL>]]
+        (ABORT, Something went wrong with computing fastZ.)
+        M2
+    O20 endif
+    
+    (Variables, where the location of the probed point is stored.)
+    #<probedX> = #<NULL>
+    #<probedY> = #<NULL>
+    #<probedZ> = #<NULL>
+    
+    o<check_fastmove> sub
+        O30 if [#5070 NE 0]
+            (ABORT, Probe collision detected.)
+            M2
+        O30 endif
+    o<check_fastmove> endsub
+    
+    
+    (PROBE_OUTSIDE_CENTER begins here ...)
+o<probe_outside_center> endsub
+
+M2
+
+%
