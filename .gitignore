@@ -1,0 +1,12 @@
+.idea/
+.gradle
+gradle.properties
+build/
+*.iml
+todo.txt
+hs_err_*.log
+out/
+.classpath
+.project
+.settings/
+bin/
