@@ -1,6 +1,8 @@
 package de.mf.cnc.probe
 
+import de.mf.cnc.probe.scripts.BoreCenter
 import de.mf.cnc.probe.scripts.CenterOfRectangle
+import de.mf.cnc.probe.scripts.ZTop
 import kotlin.io.path.*
 import kotlin.system.exitProcess
 
@@ -21,7 +23,9 @@ fun main() {
     }
 
     val scriptBuilders: List<ProbeScriptTemplate> = listOf(
-        CenterOfRectangle()
+        CenterOfRectangle(),
+        ZTop(),
+        BoreCenter()
     )
 
     val scriptDir = Path("scripts")

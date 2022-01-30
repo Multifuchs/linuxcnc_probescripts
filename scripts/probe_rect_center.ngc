@@ -161,15 +161,13 @@ o<probe_rect_center> sub
 o<probe_rect_center> endsub
 
 o<fast_move> sub
-    o<fast_move> sub
-        O70 if [[[#<_x> NE #1] OR [#<_y> NE #2]] OR [#<_z> NE #3]]
-            G38.3 X[#1] Y[#2] Z[#3] F[#<_ini[PROBETOOL_FEED]FAST>]
-            O80 if [#5070]
-                (ABORT, Probe collision detected.)
-                M2
-            O80 endif
-        O70 endif
-    o<fast_move> endsub
+    O70 if [[[#<_x> NE #1] OR [#<_y> NE #2]] OR [#<_z> NE #3]]
+        G38.3 X[#1] Y[#2] Z[#3] F[#<_ini[PROBETOOL_FEED]FAST>]
+        O80 if [#5070]
+            (ABORT, Probe collision detected.)
+            M2
+        O80 endif
+    O70 endif
 o<fast_move> endsub
 
 %

@@ -18,24 +18,22 @@ abstract class ProbeScriptTemplate(val name: String) {
         }
 
         SUB("fast_move") {
-            SUB("fast_move") {
-                IF(
-                    (GLOBALPARAM("x") notEqual NUMPARAM(1))
-                            or (GLOBALPARAM("y") notEqual NUMPARAM(2))
-                            or (GLOBALPARAM("z") notEqual NUMPARAM(3))
-                ) {
-                    L(
-                        listOf(
-                            "G38.3",
-                            "X${NUMPARAM(1).toString(true)}",
-                            "Y${NUMPARAM(2).toString(true)}",
-                            "Z${NUMPARAM(3).toString(true)}",
-                            "F${ProbeProps.fastFeed.toString(true)}"
-                        ).joinToString(" ")
-                    )
-                    IF(ProbeScriptBuilder.probeSuccessParam) {
-                        ABORT("Probe collision detected.")
-                    }
+            IF(
+                (GLOBALPARAM("x") notEqual NUMPARAM(1))
+                        or (GLOBALPARAM("y") notEqual NUMPARAM(2))
+                        or (GLOBALPARAM("z") notEqual NUMPARAM(3))
+            ) {
+                L(
+                    listOf(
+                        "G38.3",
+                        "X${NUMPARAM(1).toString(true)}",
+                        "Y${NUMPARAM(2).toString(true)}",
+                        "Z${NUMPARAM(3).toString(true)}",
+                        "F${ProbeProps.fastFeed.toString(true)}"
+                    ).joinToString(" ")
+                )
+                IF(ProbeScriptBuilder.probeSuccessParam) {
+                    ABORT("Probe collision detected.")
                 }
             }
         }
