@@ -22,7 +22,7 @@ dependencies {
 }
 
 application {
-    mainClass = "de.mf.cnc.probe.MainKt"
+    mainClass = "de.mf.ngcport.MainKt"
 }
 
 test {
