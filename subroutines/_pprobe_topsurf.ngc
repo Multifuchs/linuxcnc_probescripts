@@ -1,0 +1,36 @@
+%
+;
+; Internal used sub!
+; Do not call it directly!
+;
+
+; Probes the surface above the probe.
+; Sets return values:
+; #<_pPntZ>: Z of the surface.
+; Sub returns 0 if success.
+
+o<_pprobe_topsurf> sub
+  o<_pinit> call
+  o<_preset_return> call
+  
+  ; Remember starting point.
+  #<sX> = #<_x>
+  #<sY> = #<_y>
+  #<sZ> = #<_z>
+  
+  #<depth> = #1       ; How much the probe should move below startingZ to reach the top surface.
+  
+  o10 if [#<depth> LE 0]
+    #<depth> = #<_pDepth> ; use default from config
+  o10 endif
+  
+  o<_pprobemove> call [#<sX>] [#<sY>] [#<sZ> - #<depth>]
+  G0 Z[#<sZ>] ; Go back to where we started
+  
+  ; _pprobemove already set #<_pPntZ>
+  
+  o<_pend> call
+o<_pprobe_topsurf> endsub [0]
+
+M2
+%

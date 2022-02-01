@@ -32,6 +32,9 @@ o<_pinit> sub
     #<_pSafeZSet> = 0
     o<_preset_return> call
 
+    ; Debug
+    #<_pMsgResults> = 1    ; 1 To enable messages showing some results.
+
 
 o<_pinit> endsub
 

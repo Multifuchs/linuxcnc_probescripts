@@ -4,7 +4,7 @@
 ;
 
 o<_preset_return> sub
-    #<_pPntX> = 0 ; Probed Point (only valid if _pSucXYZ is 1)
+    #<_pPntX> = 0 ; Probed Point
     #<_pPntY> = 0
     #<_pPntZ> = 0
     #<_pLenX> = 0 ; Length of sth

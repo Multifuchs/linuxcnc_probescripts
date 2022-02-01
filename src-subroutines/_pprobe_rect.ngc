@@ -9,7 +9,7 @@
 ; #<_pLenX>, #<_pLenY>: width and depth of the rectangle.
 ; Sub returns 0 if success.
 
-o<_prect> sub
+o<_pprobe_rect> sub
     o<_pinit> call
     o<_preset_return> call
 
@@ -23,18 +23,18 @@ o<_prect> sub
     ; 4: right-front corner
     #<startLoc> = [ROUND[#3]]
 
-    #<depth> = #4
+    #<depth> = #4       ; How much the probe should move below startingZ to reach the sides.
 
     ; Check params.
     if [[#<estXLen> LE 0] OR [#<estYLen> LE 0]]
         o<_pend> call
         (ABORT, Param #1, #2: Estimated width and height must be > 0)
-        o<_prect> return [-1]
+        M2
     endif
     if [[#<startLoc> LT 0] OR [#<startLoc> GT 4]]
         o<_pend> call
         (ABORT, Param #3: Startloc must be >= 0 and <= 4)
-        o<_prect> return [-1]
+        M2
     endif
     if [#<depth> LE 0]
         #<depth> = #<_pDepth> ; use default from config
@@ -132,39 +132,18 @@ o<_prect> sub
 
     ; Crunch the numbers.
 
-    ; Start location:
-    ; 0: center
-    ; 1: left-front corner
-    ; 2: left-back corner
-    ; 3: right-back corner
-    ; 4: right-front corner
-
     #<left> =  #[#<_pNumParam> + 1]
     #<back> =  #[#<_pNumParam> + 2]
     #<right> = #[#<_pNumParam> + 3]
     #<front> = #[#<_pNumParam> + 4]
 
+    ; Return width, depth and XY of center.
     #<_pLenX> = [#<right> - #<left>]
     #<_pLenY> = [#<back> - #<front>]
-
-    if [#<startLoc> EQ 0]
-        #<_pPntX> = [#<left> + [#<_pLenX> / 2]]
-        #<_pPntY> = [#<front> + [#<_pLenY> / 2]]
-    elseif [#<startLoc> EQ 1]
-        #<_pPntX> = #<left>
-        #<_pPntY> = #<front>
-    elseif [#<startLoc> EQ 2]
-        #<_pPntX> = #<left>
-        #<_pPntY> = #<back>
-    elseif [#<startLoc> EQ 3]
-        #<_pPntX> = #<right>
-        #<_pPntY> = #<back>
-    else
-        #<_pPntX> = #<right>
-        #<_pPntY> = #<front>
-    endif
+    #<_pPntX> = [#<left> + [#<_pLenX> / 2]]
+    #<_pPntY> = [#<front> + [#<_pLenY> / 2]]
 
     o<_pend> call
-o<_prect> endsub [0]
+o<_pprobe_rect> endsub [0]
 
 M2

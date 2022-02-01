@@ -1,0 +1,14 @@
+; Probes Z of the surface bellow the probe.
+;
+; Updates the Z origin of the current coordinate system.
+
+; #1: Max depth. How far the probe goes to search the surface.
+;     If 0 #<_pDepth> from _pInit.ngc ist used. (default: 0)
+
+o<pTop> sub
+
+    o<_pprobe_topsurf> call [#1]
+
+    G10 L20 Z[#<_z> - #<_pPntZ>]
+
+o<pTop> endsub

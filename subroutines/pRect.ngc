@@ -1,0 +1,86 @@
+%
+; Probes all 4 sides of an rectangular feature (usually raw stock).
+;
+; Place your probe close to the startlocation!
+;
+; Updates the origin of the current coordinate system depending on the given parameters.
+; #1: Estimated width
+; #2: Estimated height
+; #3: Startlocation (default: 0)
+;     0: Default value, will be interpreted as 1 (center)
+;     1: Center
+;     2: Left-Front corner (-x, -y)
+;     3: Left-Back corner (-x, +y)
+;     4: Right-Back corner (+x, +y)
+;     5: Right-Front corner (+x, -y)
+; #4: Depth - how much the probe goes bellow the starting position to probe the sides.
+;     If is set to 0, #<_pDepth> from _pinit.ngc is used. (default: 0)
+; #5: Point, which is used as the new origin.
+;     If is set to 0, it uses the point corresponding to the startlocation.
+;     For example, if you start at the right-front corner, this corner will be used.
+;     Values for locations are the same as for #3.
+;     (default: 0)
+; This subroutine also sets the following global parameters for you to use:
+; #<_pWidth>, #<_pDepth>
+
+o<pRect> sub
+  
+  #<startLoc> = #1
+  o10 if [#<startLoc> GT 0]
+    #<startLoc> = [#<startLoc> - 1] ; This script uses different numbers than _pprobe_rect
+  o10 endif
+  
+  o<_pprobe_rect> call [#1] [#2] [#<startLoc>] [#4]
+  
+  ; _pprobe_rect always returns the center location and width + depth.
+  ; We need to convert that.
+  
+  #<originPnt> = [ROUND[#5]]
+  
+  o20 if [#<originPnt> EQ 0]
+    ; Use same as #3 (startlocation).
+    #<originPnt> = ROUND[#3]
+    o30 if [#<originPnt> EQ 0]
+      ; Startlocation 0 defaults to center.
+      #<originPnt> = 1
+    o30 endif
+  o20 endif
+  
+  #<halfLenX> = [#<_pLenX> / 2]
+  #<halfLenY> = [#<_pLenY> / 2]
+  
+  o40 if [#<originPnt> EQ 1] ; Center
+    #<oX> = #<_pPntX>
+    #<oY> = #<_pPntY>
+  o40 elseif [#<originPnt> EQ 2] ; Left-Front
+    #<oX> = [#<_pPntX> - #<halfLenX>]
+    #<oY> = [#<_pPntY> - #<halfLenY>]
+  o40 elseif [#<originPnt> EQ 3] ; Left-Back
+    #<oX> = [#<_pPntX> - #<halfLenX>]
+    #<oY> = [#<_pPntY> + #<halfLenY>]
+  o40 elseif [#<originPnt> EQ 4] ; Right-Back
+    #<oX> = [#<_pPntX> + #<halfLenX>]
+    #<oY> = [#<_pPntY> + #<halfLenY>]
+  o40 elseif [#<originPnt> EQ 5] ; Right-Front
+    #<oX> = [#<_pPntX> + #<halfLenX>]
+    #<oY> = [#<_pPntY> - #<halfLenY>]
+  o40 else
+    (ABORT, Illegal parameter #5)
+    M2
+  o40 endif
+  
+  ; Update origin
+  G10 L20 X[#<_x> - #<oX>] Y[#<_y> - #<oY>]
+  
+  ; Set return values.
+  #<_pWidth> = #<_pLenX>
+  #<_pDepth> = #<_pLenY>
+  
+  o50 if [#<_pMsgResults>]
+    (debug, W: #<_pWidth> D: #<_pDepth>)
+  o50 endif
+  
+o<pRect> endsub
+
+M2
+%
