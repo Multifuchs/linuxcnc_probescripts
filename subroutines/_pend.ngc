@@ -1,0 +1,17 @@
+%
+;
+; Internal used sub!
+; Do not call it directly!
+;
+
+; This script is called at the end of all probe routines.
+; It allows to reset the machine to its initial state.
+
+o<_pend> sub
+  ; Reset critical variables.
+  #<_pSafeZ> = 9999999.0
+  #<_pSafeZSet> = 0
+o<_pend> endsub
+
+M2
+%

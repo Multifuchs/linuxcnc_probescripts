@@ -1,0 +1,26 @@
+o<_prapidmove> sub
+
+    ; G38.n fails, if the current point is the same as the programmed one.
+    ; So we do nothing, if we are already there.
+    if [[#<_x> EQ #1] AND [#<_y> EQ #2] AND [#<_z> EQ #3]]
+        o<_prapidmove> return
+    endif
+
+    ; If param #4 == 666 and #<_GZeroRapidMoves> == 1, we'll go crazy fast without being worried about the probe.
+    if [[#4 EQ 666] AND [#<_GZeroRapidMoves>]]
+        G0 X[#1] Y[#2] Z[#3]
+    else  
+        ; Stop, if probe touches something.
+        G38.3 X[#1] Y[#2] Z[#3] F[#<_pRapidFeed>]
+
+        ; We expect the probe to fail.
+        if [#5070]
+            o<_pend> call
+            (ABORT, The probe tripped while moving around.)
+            M2
+        endif
+    endif
+
+o<_prapidmove> endsub
+
+M2

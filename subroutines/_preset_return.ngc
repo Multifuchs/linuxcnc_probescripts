@@ -1,0 +1,17 @@
+%
+;
+; Internal used sub!
+; Do not call it directly!
+;
+
+o<_preset_return> sub
+  #<_pPntX> = 0 ; Probed Point (only valid if _pSucXYZ is 1)
+  #<_pPntY> = 0
+  #<_pPntZ> = 0
+  #<_pLenX> = 0 ; Length of sth
+  #<_pLenY> = 0
+  #<_pLenZ> = 0
+o<_preset_return> endsub
+
+M2
+%

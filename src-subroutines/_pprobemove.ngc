@@ -1,0 +1,30 @@
+; Performs a probe move and stores the results in 
+; #<_pPntX>
+; #<_pPntY>
+; #<_pPntZ>
+
+o<_pprobemove> sub
+
+    #<sX> = #<_x>
+    #<sY> = #<_y>
+    #<sZ> = #<_z>
+
+    G38.3 X[#1] Y[#2] Z[#3] F[#<_pProbingFeed>]
+
+    if [#5070 NE 1]
+        o<_pend> call
+        (ABORT, Probe was not tripped.)
+        M2
+    endif
+
+    if [#<_pSampleMode> EQ 1]
+        G38.4 X[#<sX>] Y[#<sY>] Z[#<sZ>] F[#<_pRetractFeed>]
+    endif
+
+    #<_pPntX> = #5061
+    #<_pPntY> = #5062
+    #<_pPntZ> = #5063
+
+o<_pprobemove> endsub
+
+M2

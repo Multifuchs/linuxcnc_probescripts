@@ -1,0 +1,170 @@
+;
+; Internal used sub!
+; Do not call it directly!
+;
+
+; Probes all 4 sides of an rectangular feature (usually raw stock)
+; Sets return values:
+; #<_pPntX>, #<_pPntY>: center of the rectangle.
+; #<_pLenX>, #<_pLenY>: width and depth of the rectangle.
+; Sub returns 0 if success.
+
+o<_prect> sub
+    o<_pinit> call
+    o<_preset_return> call
+
+    #<estXLen> = #1     ; Estimated width.
+    #<estYLen> = #2     ; Estimated height.
+    ; Start location:
+    ; 0: center
+    ; 1: left-front corner
+    ; 2: left-back corner
+    ; 3: right-back corner
+    ; 4: right-front corner
+    #<startLoc> = [ROUND[#3]]
+
+    #<depth> = #4
+
+    ; Check params.
+    if [[#<estXLen> LE 0] OR [#<estYLen> LE 0]]
+        o<_pend> call
+        (ABORT, Param #1, #2: Estimated width and height must be > 0)
+        o<_prect> return [-1]
+    endif
+    if [[#<startLoc> LT 0] OR [#<startLoc> GT 4]]
+        o<_pend> call
+        (ABORT, Param #3: Startloc must be >= 0 and <= 4)
+        o<_prect> return [-1]
+    endif
+    if [#<depth> LE 0]
+        #<depth> = #<_pDepth> ; use default from config
+    endif
+
+    ; Remember starting point.
+    #<sX> = #<_x>
+    #<sY> = #<_y>
+    #<sZ> = #<_z>
+
+    ; Compute Z for probe moves.
+    #<pZ> = [#<sZ> - #<depth>]
+
+    ; Setup safe and rapid moves.
+    o<_pset_safe_z> call [#<sZ> + #<_pZClear>]
+
+    ; Compute estimated center.
+    if [startLoc EQ 0]
+        #<ecX> = #<sX>
+        #<ecY> = #<sY>
+    elseif [startLoc EQ 1]
+        #<ecX> = [#<sX> + [#<estXLen> / 2]]
+        #<ecY> = [#<sY> + [#<estYLen> / 2]]
+    elseif [startLoc EQ 2]
+        #<ecX> = [#<sX> + [#<estXLen> / 2]]
+        #<ecY> = [#<sY> - [#<estYLen> / 2]]
+    elseif [startLoc EQ 3]
+        #<ecX> = [#<sX> - [#<estXLen> / 2]]
+        #<ecY> = [#<sY> - [#<estYLen> / 2]]
+    elseif [startLoc EQ 4]
+        #<ecX> = [#<sX> - [#<estXLen> / 2]]
+        #<ecY> = [#<sY> + [#<estYLen> / 2]]
+    endif
+
+    ; Compute distance from center for the probing to start.
+    #<pdX> = [[#<estXLen> / 2] + #<_pXYClear>]
+    #<pdY> = [[#<estYLen> / 2] + #<_pXYClear>]
+
+    ; Sides: 1=left, 2=back, 3=right, 4=front
+    #<curSide> = #<startLoc>
+    if [#<startLoc> EQ 0]
+        #<curSide> = 1 ; When starting from center, probe left side first.
+    endif
+
+    #<i> = 0
+    while [#<i> LT 4]
+
+        ; Probe starting point
+        #<psX> = #<ecX>
+        #<psY> = #<ecY>
+        ; Probe destination point
+        if [#<curSide> EQ 1] ; left side
+            #<psX> = [#<ecX> - #<pdX>]
+        elseif [#<curSide> EQ 2] ; back
+            #<psY> = [#<ecY> + #<pdY>]
+        elseif [#<curSide> EQ 3] ; right
+           #<psX> = [#<ecX> + #<pdX>]
+        elseif [#<curSide> EQ 4] ; front
+            #<psY> = [#<ecY> - #<pdY>]
+        else
+            o<_pend> call
+            (ABORT, Probescript error. Unknown side.)
+            M2 
+        endif
+
+        ; Move to starting point.
+        ; First move on save Z height over the edge.
+        o<_psavemove> call [#<psX>] [#<psY>]
+        ; Then move downwards to probing height.
+        o<_prapidmove> call [#<psX>] [#<psY>] [#<pZ>]
+        
+        ; Probe to center and remember result.
+        o<_pprobemove> call [#<ecX>] [#<ecY>] [#<pZ>]
+
+        if [[#<curSide> EQ 1] OR [#<curSide> EQ 3]] ; right or left
+            #<probedCord> = #<_pPntX>
+        else
+            #<probedCord> = #<_pPntY>
+        endif
+        
+        #[#<_pNumParam> + #<curSide>] = #<probedCord>
+
+        ; Move back to center.
+        o<_prapidmove> call [#<psX>] [#<psY>] [#<pZ>] [666]
+        o<_psavemove> call [#<ecX>] [#<ecY>] [0] [666] ; param 3 is ignored by psave_move
+
+        ; Manage loop.
+        #<i> = [#<i> + 1]
+        #<curSide> = [#<curSide> + 1]
+        if [#<curSide> GT 4]
+            #<curSide> = 1 ; Rollover
+        endif
+
+    endwhile
+
+    ; Crunch the numbers.
+
+    ; Start location:
+    ; 0: center
+    ; 1: left-front corner
+    ; 2: left-back corner
+    ; 3: right-back corner
+    ; 4: right-front corner
+
+    #<left> =  #[#<_pNumParam> + 1]
+    #<back> =  #[#<_pNumParam> + 2]
+    #<right> = #[#<_pNumParam> + 3]
+    #<front> = #[#<_pNumParam> + 4]
+
+    #<_pLenX> = [#<right> - #<left>]
+    #<_pLenY> = [#<back> - #<front>]
+
+    if [#<startLoc> EQ 0]
+        #<_pPntX> = [#<left> + [#<_pLenX> / 2]]
+        #<_pPntY> = [#<front> + [#<_pLenY> / 2]]
+    elseif [#<startLoc> EQ 1]
+        #<_pPntX> = #<left>
+        #<_pPntY> = #<front>
+    elseif [#<startLoc> EQ 2]
+        #<_pPntX> = #<left>
+        #<_pPntY> = #<back>
+    elseif [#<startLoc> EQ 3]
+        #<_pPntX> = #<right>
+        #<_pPntY> = #<back>
+    else
+        #<_pPntX> = #<right>
+        #<_pPntY> = #<front>
+    endif
+
+    o<_pend> call
+o<_prect> endsub [0]
+
+M2

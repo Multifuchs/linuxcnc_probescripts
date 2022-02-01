@@ -1,0 +1,30 @@
+%
+; Sets the z-value of the plane for safe movements.
+
+o<_pset_safe_z> sub
+  
+  #<safeZ> = #1
+  
+  #<_pSafeZSet> = 0
+  
+  o10 if [#<safeZ> LT #<_z>]
+    o<_pend> call
+    (ABORT, Error in probe script: cannot set safe Z height bellow current possition.)
+    M2
+  o10 endif
+  
+  ; Check if safe z is above the max machine value.
+  G28.1 ; stores the current absolute position into parameters 5161-5166
+  #<maxZ> = [#<_z> + [#<_pMaxZAbsolute> - #5163]]
+  o20 if [#<safeZ> GT #<maxZ>]
+    #<safeZ> = #<maxZ>
+  o20 endif
+  
+  ; Remember value for other subs.
+  #<_pSafeZ> = #<safeZ>
+  #<_pSafeZSet> = 1
+  
+o<_pset_safe_z> endsub
+
+M2
+%
