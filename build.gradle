@@ -31,6 +31,13 @@ application {
     mainModule = "de.mf.ngcpost"
 }
 
+run {
+    args += "-o"
+    args += "subroutines"
+    args += "src-subroutines"
+}
+
+
 jar {
     manifest {
         attributes("Implementation-Title": "ngc-postprocessor", "Main-Class": "org.beryx.modular.hello.Hello")

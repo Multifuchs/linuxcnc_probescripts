@@ -1,0 +1,5 @@
+--add-modules
+  kotlin.test
+
+--add-reads
+  de.mf.ngcpost=kotlin.test,junit
