@@ -1,8 +1,8 @@
 ; Moves the probe on the xy plane at Z = #<_pSafeZ>.
 
-o<_psavemove> sub
+o<_psafemove> sub
 
-    if [#<_pSafeZSet> NE 0]
+    if [#<_pSafeZSet> NE 1]
         o<_pend> call
         (ABORT, Error in probe script: safe Z height not set.)
         M2
@@ -15,6 +15,6 @@ o<_psavemove> sub
 
     o<_prapidmove> call [#1] [#2] [#<_z>] [#4]
 
-o<_psavemove> endsub
+o<_psafemove> endsub
 
 M2

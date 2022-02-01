@@ -4,7 +4,7 @@
 ;
 ; Updates the origin of the current coordinate system depending on the given parameters.
 ; #1: Estimated width
-; #2: Estimated height
+; #2: Estimated depth
 ; #3: Startlocation (default: 0)
 ;     0: Default value, will be interpreted as 1 (center)
 ;     1: Center
@@ -22,9 +22,16 @@
 ; This subroutine also sets the following global parameters for you to use:
 ; #<_pWidth>, #<_pDepth>
 
-o<pRect> sub
+o<p_rect> sub
 
-    #<startLoc> = #1
+    if [[#1 EQ 0] AND [#2 EQ 0]]
+        (MSG, Param 1, 2: Estimated width x depth of rectangle.)
+        (MSG, 3: Start - 0,1: Center, 2: LeftFront, 3: LeftBack, 4: RightBack, 5: RightFront)
+        (MSG, 4: Depth, 5: New Origin Point)
+        M2
+    endif
+
+    #<startLoc> = #3
     if [#<startLoc> GT 0]
         #<startLoc> = [#<startLoc> - 1] ; This script uses different numbers than _pprobe_rect
     endif
@@ -69,7 +76,7 @@ o<pRect> sub
     endif
 
     ; Update origin
-    G10 L20 X[#<_x> - #<oX>] Y[#<_y> - #<oY>]
+    G10 L20 P0 X[#<_x> - #<oX>] Y[#<_y> - #<oY>]
     
     ; Set return values.
     #<_pWidth> = #<_pLenX>
@@ -79,6 +86,6 @@ o<pRect> sub
         (debug, W: #<_pWidth> D: #<_pDepth>)
     endif
 
-o<pRect> endsub
+o<p_rect> endsub
 
 M2

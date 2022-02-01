@@ -14,12 +14,12 @@ o<_pinit> sub
   #<_pNumParam>     = 100 ; First numbered parameter, the probe scripts can use.
   
   ; Feeds
-  #<_pRapidFeed> = 800    ; Used when the probe moves around without probing.
+  #<_pRapidFeed> = 2000    ; Used when the probe moves around without probing.
   #<_pProbingFeed> = 200  ; Used when approaching the surface.
   #<_pRetractFeed> = 15   ; Used when the probe retracts, after making contact.
   
   ; Operation
-  #<_GZeroRapidMoves> = 0 ; 1 To use G0 for all rapid moves, which are considered safe.
+  #<_GZeroRapidMoves> = 1 ; 1 To use G0 for all rapid moves, which are considered safe.
   ;                         This affects only movements on routes, which were used in a safe manner, before.
   #<_pSampleMode> = 1     ; 0: Sample point when first touched, 1: Sample when lost contact while retracting.
   #<_pXYClear> = 10       ; Clearance to sides of probed object.

@@ -5,7 +5,7 @@
 ;
 ; Updates the origin of the current coordinate system depending on the given parameters.
 ; #1: Estimated width
-; #2: Estimated height
+; #2: Estimated depth
 ; #3: Startlocation (default: 0)
 ;     0: Default value, will be interpreted as 1 (center)
 ;     1: Center
@@ -23,12 +23,19 @@
 ; This subroutine also sets the following global parameters for you to use:
 ; #<_pWidth>, #<_pDepth>
 
-o<pRect> sub
+o<p_rect> sub
   
-  #<startLoc> = #1
-  o10 if [#<startLoc> GT 0]
-    #<startLoc> = [#<startLoc> - 1] ; This script uses different numbers than _pprobe_rect
+  o10 if [[#1 EQ 0] AND [#2 EQ 0]]
+    (MSG, Param 1, 2: Estimated width x depth of rectangle.)
+    (MSG, 3: Start - 0,1: Center, 2: LeftFront, 3: LeftBack, 4: RightBack, 5: RightFront)
+    (MSG, 4: Depth, 5: New Origin Point)
+    M2
   o10 endif
+  
+  #<startLoc> = #3
+  o20 if [#<startLoc> GT 0]
+    #<startLoc> = [#<startLoc> - 1] ; This script uses different numbers than _pprobe_rect
+  o20 endif
   
   o<_pprobe_rect> call [#1] [#2] [#<startLoc>] [#4]
   
@@ -37,50 +44,50 @@ o<pRect> sub
   
   #<originPnt> = [ROUND[#5]]
   
-  o20 if [#<originPnt> EQ 0]
+  o30 if [#<originPnt> EQ 0]
     ; Use same as #3 (startlocation).
     #<originPnt> = ROUND[#3]
-    o30 if [#<originPnt> EQ 0]
+    o40 if [#<originPnt> EQ 0]
       ; Startlocation 0 defaults to center.
       #<originPnt> = 1
-    o30 endif
-  o20 endif
+    o40 endif
+  o30 endif
   
   #<halfLenX> = [#<_pLenX> / 2]
   #<halfLenY> = [#<_pLenY> / 2]
   
-  o40 if [#<originPnt> EQ 1] ; Center
+  o50 if [#<originPnt> EQ 1] ; Center
     #<oX> = #<_pPntX>
     #<oY> = #<_pPntY>
-  o40 elseif [#<originPnt> EQ 2] ; Left-Front
+  o50 elseif [#<originPnt> EQ 2] ; Left-Front
     #<oX> = [#<_pPntX> - #<halfLenX>]
     #<oY> = [#<_pPntY> - #<halfLenY>]
-  o40 elseif [#<originPnt> EQ 3] ; Left-Back
+  o50 elseif [#<originPnt> EQ 3] ; Left-Back
     #<oX> = [#<_pPntX> - #<halfLenX>]
     #<oY> = [#<_pPntY> + #<halfLenY>]
-  o40 elseif [#<originPnt> EQ 4] ; Right-Back
+  o50 elseif [#<originPnt> EQ 4] ; Right-Back
     #<oX> = [#<_pPntX> + #<halfLenX>]
     #<oY> = [#<_pPntY> + #<halfLenY>]
-  o40 elseif [#<originPnt> EQ 5] ; Right-Front
+  o50 elseif [#<originPnt> EQ 5] ; Right-Front
     #<oX> = [#<_pPntX> + #<halfLenX>]
     #<oY> = [#<_pPntY> - #<halfLenY>]
-  o40 else
+  o50 else
     (ABORT, Illegal parameter #5)
     M2
-  o40 endif
+  o50 endif
   
   ; Update origin
-  G10 L20 X[#<_x> - #<oX>] Y[#<_y> - #<oY>]
+  G10 L20 P0 X[#<_x> - #<oX>] Y[#<_y> - #<oY>]
   
   ; Set return values.
   #<_pWidth> = #<_pLenX>
   #<_pDepth> = #<_pLenY>
   
-  o50 if [#<_pMsgResults>]
+  o60 if [#<_pMsgResults>]
     (debug, W: #<_pWidth> D: #<_pDepth>)
-  o50 endif
+  o60 endif
   
-o<pRect> endsub
+o<p_rect> endsub
 
 M2
 %

@@ -29,12 +29,12 @@ o<_pprobe_rect> sub
   ; Check params.
   o10 if [[#<estXLen> LE 0] OR [#<estYLen> LE 0]]
     o<_pend> call
-    (ABORT, Param #1, #2: Estimated width and height must be > 0)
+    (ABORT, Param 1, 2: Estimated width and height must be > 0)
     M2
   o10 endif
   o20 if [[#<startLoc> LT 0] OR [#<startLoc> GT 4]]
     o<_pend> call
-    (ABORT, Param #3: Startloc must be >= 0 and <= 4)
+    (ABORT, Param 3: Startloc must be >= 0 and <= 4)
     M2
   o20 endif
   o30 if [#<depth> LE 0]
@@ -53,19 +53,19 @@ o<_pprobe_rect> sub
   o<_pset_safe_z> call [#<sZ> + #<_pZClear>]
   
   ; Compute estimated center.
-  o40 if [startLoc EQ 0]
+  o40 if [#<startLoc> EQ 0]
     #<ecX> = #<sX>
     #<ecY> = #<sY>
-  o40 elseif [startLoc EQ 1]
+  o40 elseif [#<startLoc> EQ 1]
     #<ecX> = [#<sX> + [#<estXLen> / 2]]
     #<ecY> = [#<sY> + [#<estYLen> / 2]]
-  o40 elseif [startLoc EQ 2]
+  o40 elseif [#<startLoc> EQ 2]
     #<ecX> = [#<sX> + [#<estXLen> / 2]]
     #<ecY> = [#<sY> - [#<estYLen> / 2]]
-  o40 elseif [startLoc EQ 3]
+  o40 elseif [#<startLoc> EQ 3]
     #<ecX> = [#<sX> - [#<estXLen> / 2]]
     #<ecY> = [#<sY> - [#<estYLen> / 2]]
-  o40 elseif [startLoc EQ 4]
+  o40 elseif [#<startLoc> EQ 4]
     #<ecX> = [#<sX> - [#<estXLen> / 2]]
     #<ecY> = [#<sY> + [#<estYLen> / 2]]
   o40 endif
@@ -101,14 +101,20 @@ o<_pprobe_rect> sub
       M2
     o70 endif
     
-    ; Move to starting point.
+    ; Move to probe-starting point <XY>.
     ; First move on save Z height over the edge.
-    o<_psavemove> call [#<psX>] [#<psY>]
+    o<_psafemove> call [#<psX>] [#<psY>]
     ; Then move downwards to probing height.
     o<_prapidmove> call [#<psX>] [#<psY>] [#<pZ>]
     
     ; Probe to center and remember result.
     o<_pprobemove> call [#<ecX>] [#<ecY>] [#<pZ>]
+    
+    ; Move away from walls
+    o<_prapidmove> call [#<psX>] [#<psY>] [#<pZ>] [666]
+    ; Move to safe Z
+    o<_psafemove> call [#<psX>] [#<psY>] [666]
+    
     
     o80 if [[#<curSide> EQ 1] OR [#<curSide> EQ 3]] ; right or left
       #<probedCord> = #<_pPntX>
@@ -118,10 +124,6 @@ o<_pprobe_rect> sub
     
     #[#<_pNumParam> + #<curSide>] = #<probedCord>
     
-    ; Move back to center.
-    o<_prapidmove> call [#<psX>] [#<psY>] [#<pZ>] [666]
-    o<_psavemove> call [#<ecX>] [#<ecY>] [0] [666] ; param 3 is ignored by psave_move
-    
     ; Manage loop.
     #<i> = [#<i> + 1]
     #<curSide> = [#<curSide> + 1]
@@ -130,6 +132,9 @@ o<_pprobe_rect> sub
     o90 endif
     
   o60 endwhile
+  
+  ; Move back to start.
+  o<_psafemove> call [#<sX>] [#<sY>]
   
   ; Crunch the numbers.
   

@@ -6,11 +6,11 @@
 ; #1: Max depth. How far the probe goes to search the surface.
 ;     If 0 #<_pDepth> from _pInit.ngc ist used. (default: 0)
 
-o<pTop> sub
+o<p_top> sub
   
   o<_pprobe_topsurf> call [#1]
   
-  G10 L20 Z[#<_z> - #<_pPntZ>]
+  G10 L20 P0 Z[#<_z> - #<_pPntZ>]
   
-o<pTop> endsub
+o<p_top> endsub
 %
