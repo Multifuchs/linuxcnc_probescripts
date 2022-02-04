@@ -5,6 +5,10 @@
 
 o<_pprobemove> sub
 
+    if [#<_pVerbose>]
+        (debug, PROBE x: #1 y: #2 z: #3)
+    endif
+
     #<sX> = #<_x>
     #<sY> = #<_y>
     #<sZ> = #<_z>
@@ -24,6 +28,23 @@ o<_pprobemove> sub
     #<_pPntX> = #5061
     #<_pPntY> = #5062
     #<_pPntZ> = #5063
+
+    ; Apply XY correction for probe ball diameter.
+    ; 1. Get movement vector
+    #<vX> = [#1 - #<sX>]
+    #<vY> = [#2 - #<sY>]
+
+    ; 2. Normalize vector and apply correction offset.
+    #<vL> = [SQRT[[#<vX> * #<vX>] + [#<vY> * #<vY>]]]
+    
+    if [#<vL> GT 0] 
+        #<vF> = [#<_pXYCorrections> / #<vL>]
+        #<vX> = [#<vX> * #<vF>]
+        #<vY> = [#<vY> * #<vF>]
+
+        #<_pPntX> = [#<_pPntX> + #<vX>]
+        #<_pPntY> = [#<_pPntY> + #<vY>]
+    endif
 
 o<_pprobemove> endsub
 

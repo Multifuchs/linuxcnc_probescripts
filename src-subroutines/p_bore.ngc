@@ -1,0 +1,27 @@
+; Probes a bore.
+; 
+; Place your probe inside the bore and close to the estimated center.
+;
+; Updates X and Y of the origin of the current coordinate system with the center of the bore.
+;
+; #1: Estimated bore diameter
+;
+; This subroutine also sets the following global parameters for you to use:
+; #<_pBoreDiamX>, #<_pBoreDiamY>
+
+o<p_bore> sub
+
+    o<_pprobe_bore> call [#1]
+
+    G10 L20 P0 X[#<_x> - #<_pPntX>] Y[#<_y> - #<_pPntY>]
+
+    #<_pBoreDiamX> = #<_pLenX>
+    #<_pBoreDiamY> = #<_pLenY>
+
+    #<avg> = [[#<_pLenX> + #<_pLenY>] / 2]
+
+    (debug, W: #<_pLenX> H: #<_pLenY> avg: #<avg>)
+
+o<p_bore> endsub
+
+M2

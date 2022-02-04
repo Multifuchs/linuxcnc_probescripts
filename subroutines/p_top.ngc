@@ -1,4 +1,3 @@
-%
 ; Probes Z of the surface bellow the probe.
 ;
 ; Updates the Z origin of the current coordinate system.
@@ -13,4 +12,3 @@ o<p_top> sub
   G10 L20 P0 Z[#<_z> - #<_pPntZ>]
   
 o<p_top> endsub
-%

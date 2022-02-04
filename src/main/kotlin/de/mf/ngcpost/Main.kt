@@ -106,7 +106,8 @@ Arguments:
    -h              Print help (this message)
    -q              Quiet mode (no output to stdout)
    --keep-indent   Keeps indentation as it is.
-   --keep-olabels  Keeps O-labels as they are."""
+   --keep-olabels  Keeps O-labels as they are.
+   --with-percent  Adds % as the first and last line."""
     )
     exitProcess(0)
 }

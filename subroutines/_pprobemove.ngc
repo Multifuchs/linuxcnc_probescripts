@@ -1,4 +1,3 @@
-%
 ; Performs a probe move and stores the results in
 ; #<_pPntX>
 ; #<_pPntY>
@@ -6,27 +5,47 @@
 
 o<_pprobemove> sub
   
+  o10 if [#<_pVerbose>]
+    (debug, PROBE x: #1 y: #2 z: #3)
+  o10 endif
+  
   #<sX> = #<_x>
   #<sY> = #<_y>
   #<sZ> = #<_z>
   
   G38.3 X[#1] Y[#2] Z[#3] F[#<_pProbingFeed>]
   
-  o10 if [#5070 NE 1]
+  o20 if [#5070 NE 1]
     o<_pend> call
     (ABORT, Probe was not tripped.)
     M2
-  o10 endif
-  
-  o20 if [#<_pSampleMode> EQ 1]
-    G38.4 X[#<sX>] Y[#<sY>] Z[#<sZ>] F[#<_pRetractFeed>]
   o20 endif
+  
+  o30 if [#<_pSampleMode> EQ 1]
+    G38.4 X[#<sX>] Y[#<sY>] Z[#<sZ>] F[#<_pRetractFeed>]
+  o30 endif
   
   #<_pPntX> = #5061
   #<_pPntY> = #5062
   #<_pPntZ> = #5063
   
+  ; Apply XY correction for probe ball diameter.
+  ; 1. Get movement vector
+  #<vX> = [#1 - #<sX>]
+  #<vY> = [#2 - #<sY>]
+  
+  ; 2. Normalize vector and apply correction offset.
+  #<vL> = [SQRT[[#<vX> * #<vX>] + [#<vY> * #<vY>]]]
+  
+  o40 if [#<vL> GT 0]
+    #<vF> = [#<_pXYCorrections> / #<vL>]
+    #<vX> = [#<vX> * #<vF>]
+    #<vY> = [#<vY> * #<vF>]
+    
+    #<_pPntX> = [#<_pPntX> + #<vX>]
+    #<_pPntY> = [#<_pPntY> + #<vY>]
+  o40 endif
+  
 o<_pprobemove> endsub
 
 M2
-%

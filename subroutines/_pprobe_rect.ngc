@@ -1,4 +1,3 @@
-%
 ;
 ; Internal used sub!
 ; Do not call it directly!
@@ -153,4 +152,3 @@ o<_pprobe_rect> sub
 o<_pprobe_rect> endsub [0]
 
 M2
-%

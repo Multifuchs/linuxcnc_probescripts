@@ -1,4 +1,3 @@
-%
 ;
 ; Internal used sub!
 ; Do not call it directly!
@@ -14,4 +13,3 @@ o<_preset_return> sub
 o<_preset_return> endsub
 
 M2
-%

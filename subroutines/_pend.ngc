@@ -1,4 +1,3 @@
-%
 ;
 ; Internal used sub!
 ; Do not call it directly!
@@ -14,4 +13,3 @@ o<_pend> sub
 o<_pend> endsub
 
 M2
-%

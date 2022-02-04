@@ -1,4 +1,3 @@
-%
 ; Moves the probe on the xy plane at Z = #<_pSafeZ>.
 
 o<_psafemove> sub
@@ -19,4 +18,3 @@ o<_psafemove> sub
 o<_psafemove> endsub
 
 M2
-%

@@ -1,4 +1,3 @@
-%
 o<_prapidmove> sub
   
   ; G38.n fails, if the current point is the same as the programmed one.
@@ -25,4 +24,3 @@ o<_prapidmove> sub
 o<_prapidmove> endsub
 
 M2
-%

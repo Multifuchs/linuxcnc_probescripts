@@ -1,0 +1,128 @@
+;
+; Internal used sub!
+; Do not call it directly!
+;
+
+; Probes the size and center of a bore.
+; Probing is expected to be inside the bore at the correct Z-height.
+; Sets return values:
+; #<_pPntX>, #<_pPntY>: center of the bore.
+; #<_pLenX>, #<_pLenY>: width and depth of the bore.
+
+o<_pprobe_bore> sub
+    o<_pinit> call
+    o<_preset_return> call
+
+    ; Handle parameters.
+
+    #<estDiam> = #1 ; Estimated diameter.
+        
+    if [#<estDiam> LT 0]
+        o<_pend> call
+        (ABORT, Param 1 <Estimated diameter> must be >= 0)
+        M2
+    endif
+
+    ; Store some values.
+
+    #<sX> = #<_x>
+    #<sY> = #<_y>
+
+    #<estR> = [#<estDiam> / 2]
+    #<rapidDist> = [#<estR> - #<_pXYClear>]
+    #<probeDist> = [#<estR> + #<_pXYSearchDist>]
+
+    if [#<rapidDist> LT 0]
+        #<rapidDist> = 0 ; Hole is too small for rapid moves.
+    endif
+
+    ; Values which will change during probing.
+    #<boreX> = #<sX>
+    #<boreY> = #<sY>
+    #<boreDiamX> = 0
+    #<boreDiamY> = 0
+
+    ; Outer loop: for each Axis of X and Y .
+    ; Inner loop: for each Direction of -1 and +1.
+
+    #<i> = 0
+    #<axis> = 0 ; 0=X, 1=Y
+    ; Probe X axis twice. After Y-Axis probing, there will be a more precise center for X-Axis probing.
+    while [#<i> LT 3]
+
+        #<direction> = -1; ; Is either -1 or +1
+        while [#<direction> LE 1]
+
+            if [#<axis> EQ 0]
+                #<xMul> = 1;
+                #<yMul> = 0;
+            else
+                #<xMul> = 0;
+                #<yMul> = 1;
+            endif
+
+            if [#<_pVerbose>]
+                (debug, AXIS #<axis> DIR #<direction>)
+            endif
+
+            #<xMul> = [#<xMul> * #<direction>]
+            #<yMul> = [#<yMul> * #<direction>]
+
+            ; Rapid move close to bore wall.
+            if [#<rapidDist> GT 0]
+                o<_prapidmove> call [#<boreX> + [#<xMul> * #<rapidDist>]] [#<boreY> + [#<yMul> * #<rapidDist>]] [#<_z>]
+            endif
+
+            ; Probe move.
+            o<_pprobemove> call [#<boreX> + [#<xMul> * #<probeDist>]] [#<boreY> + [#<yMul> * #<probeDist>]] [#<_z>]
+
+            ; Find probed value and store it properly.
+            if [#<axis> EQ 0]   ; X-Axis
+                #<pval> = #<_pPntX>
+            else                ; Y-Axis
+                #<pval> = #<_pPntY>
+            endif
+
+            if [#<direction> EQ -1] ; Negative direction
+                #<pneg> = #<pval>
+            else                    ; Positive direction
+                #<ppos> = #<pval>
+            endif
+
+            ; Manage direction loop.
+            #<direction> = [#<direction> + 2] ; -1 -> +1
+        endwhile
+
+        ; Now we have probed in both directions and stored results in pneg and ppos.
+        ; Compute bore position and diameter on current axis.
+
+        if [#<axis> EQ 0]   ; X-Axis
+            #<boreX> = [[#<pneg> + #<ppos>] / 2]
+            #<boreDiamX> = [#<ppos> - #<pneg>]
+        else                ; Y-Axis
+            #<boreY> = [[#<pneg> + #<ppos>] / 2]
+            #<boreDiamY> = [#<ppos> - #<pneg>]
+        endif
+
+        ; Move back to center.
+        o<_prapidmove> call [#<boreX>] [#<boreY>] [#<_z>]
+            
+
+        ; Manage axis loop.
+        #<i> = [#<i> + 1]
+        #<axis> = [#<axis> + 1]
+        if [#<axis> GT 1]
+            #<axis> = 0 ; Rollover: axis can only be 0 or 1.
+        endif        
+    endwhile
+
+    ; Store return values.
+    #<_pPntX> = #<boreX>
+    #<_pPntY> = #<boreY>
+    #<_pLenX> = #<boreDiamX>
+    #<_pLenY> = #<boreDiamY>
+
+    o<_pend> call
+o<_pprobe_bore> endsub
+
+M2

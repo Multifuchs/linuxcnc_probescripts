@@ -13,8 +13,10 @@ fun postprocessFile(
     val out = dest.buffered()
     val fixIndent = !flags.contains("keep-indent")
     val fixOLabels = !flags.contains("keep-olabels")
+    val withPercent = flags.contains("with-percent")
 
-    out.appendLine("%")
+    if (withPercent)
+        out.appendLine("%")
 
     var indentLevel = 0
 
@@ -70,7 +72,8 @@ fun postprocessFile(
 //        .onEach { println("$iLine '${it.str}' -> '${it.out}'") }
         .forEach { out.appendLine(it.out) }
 
-    out.write("%")
+    if (withPercent)
+        out.write("%")
     out.flush()
 }
 

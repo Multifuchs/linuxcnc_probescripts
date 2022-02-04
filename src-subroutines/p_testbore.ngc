@@ -1,0 +1,19 @@
+; Probes a bore.
+; 
+; Place your probe inside the bore and close to the estimated center.
+;
+; Doesnt set X and Y of the origin of the current coordinate system with the center of the bore.
+;
+; #1: Estimated bore diameter
+
+o<p_testbore> sub
+
+    o<_pprobe_bore> call [#1]
+
+    #<avg> = [[#<_pLenX> + #<_pLenY>] / 2]
+
+    (debug, X: #<_pPntX> Y: #<_pPntY> W: #<_pLenX> H: #<_pLenY> avg: #<avg>)
+
+o<p_testbore> endsub
+
+M2

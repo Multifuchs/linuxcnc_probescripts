@@ -1,4 +1,3 @@
-%
 ;
 ; Internal used sub!
 ; Do not call it directly!
@@ -13,20 +12,23 @@ o<_pinit> sub
   #<_pMaxZAbsolute> = 0   ; Max Z the machine can move, in machinecoordinates.
   #<_pNumParam>     = 100 ; First numbered parameter, the probe scripts can use.
   
+  ; Probe
+  #<_pXYCorrections> = [[9 - 7.06] / 2]
+  
   ; Feeds
-  #<_pRapidFeed> = 2000    ; Used when the probe moves around without probing.
+  #<_pRapidFeed> = 800    ; Used when the probe moves around without probing.
   #<_pProbingFeed> = 200  ; Used when approaching the surface.
   #<_pRetractFeed> = 15   ; Used when the probe retracts, after making contact.
   
   ; Operation
-  #<_GZeroRapidMoves> = 1 ; 1 To use G0 for all rapid moves, which are considered safe.
+  #<_GZeroRapidMoves> = 0 ; 1 To use G0 for all rapid moves, which are considered safe.
   ;                         This affects only movements on routes, which were used in a safe manner, before.
   #<_pSampleMode> = 1     ; 0: Sample point when first touched, 1: Sample when lost contact while retracting.
   #<_pXYClear> = 10       ; Clearance to sides of probed object.
   #<_pZClear> = 80        ; Clearance to top of probed object. (So it doesn't hit any fixtures)
   #<_pDepth> = 3          ; How much the probe goes bellow the top surface when probing walls.
-  ; #<_pXYSearchDist> = 50  ; How far the probe moves beyond the expected location of a feature.
-  ; #<_pZSearchDist> = 10   ; Same as _pXYSearchDist, just for probing top surfaces.
+  #<_pXYSearchDist> = 50  ; How far the probe moves beyond the expected location of a feature.
+  #<_pZSearchDist> = 10   ; Same as _pXYSearchDist, just for probing top surfaces.
   
   ; Initialize internally used variables.
   #<_pSafeZ> = 9999999.0
@@ -34,10 +36,10 @@ o<_pinit> sub
   o<_preset_return> call
   
   ; Debug
-  #<_pMsgResults> = 1    ; 1 To enable messages showing some results.
+  #<_pVerbose> = 0        ; Prints every move.
+  #<_pMsgResults> = 1     ; 1 To enable messages showing some results.
   
   
 o<_pinit> endsub
 
 M2
-%

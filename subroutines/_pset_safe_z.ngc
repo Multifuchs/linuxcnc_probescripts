@@ -1,4 +1,3 @@
-%
 ; Sets the z-value of the plane for safe movements.
 
 o<_pset_safe_z> sub
@@ -27,4 +26,3 @@ o<_pset_safe_z> sub
 o<_pset_safe_z> endsub
 
 M2
-%
