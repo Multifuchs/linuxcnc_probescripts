@@ -1,0 +1,14 @@
+; Probes Z of the surface bellow the probe but doesn't change any coordinate system.
+;
+; Prints a message with the coordinates.
+;
+; #1: Max depth. How far the probe goes to search the surface.
+;     If 0 #<_pDepth> from _pInit.ngc ist used. (default: 0)
+
+o<pns_top> sub
+  
+  o<_pprobe_topsurf> call [#1]
+  
+  (debug, Z: #<_pPntZ>)
+  
+o<pns_top> endsub

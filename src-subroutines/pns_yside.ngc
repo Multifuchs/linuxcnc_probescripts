@@ -1,0 +1,22 @@
+; Probes a side on the y-axis but doesn't change the current coordinate system.
+;
+; Max search length is _pXYSearchDist from _pInit.ngc.
+;
+; #1: Direction: -1=Front, 1=Back
+
+o<pns_yside> sub
+
+    #<dir> = #1
+
+    if [[#<dir> NE -1] AND [#<dir> NE 1]]
+        (MSG, #1: -1=Left, 1=Right, #2: New offset)
+        M2
+    endif
+
+    o<_pxside> call [#<dir>]
+
+    (debug, Y: #<_pPntY>)
+
+o<pns_yside> endsub
+
+M2

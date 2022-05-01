@@ -1,0 +1,29 @@
+; Probes a side on the y-axis.
+;
+; Max search length is _pXYSearchDist from _pInit.ngc.
+;
+; #1: Direction: -1=Front, 1=Back
+
+o<_pyside> sub
+
+    #<dir> = #1
+
+    if [[#<dir> NE -1] AND [#<dir> NE 1]]
+        (ABORT, #1 Direction must be either -1 or 1)
+        M2
+    endif
+
+    o<_pinit> call
+    o<_preset_return> call
+
+    #<sY> = #<_y>
+
+    o<_pprobemove> call [#<_x>] [#<sY> + [#<dir> * #<_pXYSearchDist>]] [#<_z>]
+
+    o<_prapidmove> call [#<_x>] [#<sY>] [#<_z>]
+
+    o<_pend> call
+
+o<_pyside> endsub
+
+M2

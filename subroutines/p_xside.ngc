@@ -1,0 +1,26 @@
+; Probes a side on the x-axis.
+;
+; Updates the current coordinate system.
+;
+; Max search length is _pXYSearchDist from _pInit.ngc.
+;
+; #1: Direction: -1=Left, 1=Right
+; #2: Offset: new x-value of the probed point in the current coordinate system.
+
+o<p_xside> sub
+  
+  #<dir> = #1
+  #<offset> = #2
+  
+  o10 if [[#<dir> NE -1] AND [#<dir> NE 1]]
+    (MSG, #1: -1=Left, 1=Right, #2: New offset)
+    M2
+  o10 endif
+  
+  o<_pxside> call [#<dir>]
+  
+  G10 L20 P0 X[#<_x> - #<_pPntX> + #<offset>]
+  
+o<p_xside> endsub
+
+M2
